@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Visibilidad Digital — UROGINMEX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Newsreader:ital,wght@0,400;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:      #0B1929;
+  --navy-mid:  #0F2236;
+  --navy-lt:   #14304D;
+  --accent:    #5EEBC2;
+  --accent-dim:#2A8A6E;
+  --red:       #C0392B;
+  --amber-dark:#966A00;
+  --green-dark:#1E7A45;
+  --text-body: #1F2937;
+  --text-muted:#4B5563;
+}
+
+body { font-family: 'Outfit', sans-serif; background: #fff; color: #1F2937; line-height: 1.6; }
+
+/* ── NAV (dark) ─────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--navy); padding: 0 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px; border-bottom: 2px solid var(--accent);
+}
+.nav-logo { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+.nav-logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 24px; }
+.nav-links a { color: #C4CFDD; font-size: 13px; text-decoration: none; }
+.nav-links a:hover { color: var(--accent); }
+.nav-right { display: flex; gap: 12px; align-items: center; }
+.btn-print {
+  background: transparent; border: 1px solid var(--accent);
+  color: var(--accent); font-size: 12px; font-weight: 600;
+  padding: 6px 16px; border-radius: 4px; cursor: pointer; letter-spacing: 0.06em;
+}
+.btn-print:hover { background: var(--accent); color: var(--navy); }
+
+/* ── HERO (dark) ────────────────────────────── */
+.hero { background: var(--navy); padding: 72px 48px 64px; position: relative; overflow: hidden; }
+.hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+.hero-title { font-size: clamp(32px,5vw,52px); font-weight: 300; color: #fff; line-height: 1.1; margin-bottom: 8px; }
+.hero-title strong { font-weight: 800; color: #fff; }
+.hero-title em { font-family: 'Newsreader', serif; font-style: italic; color: var(--accent); }
+.hero-tagline { font-size: 16px; font-weight: 300; color: #C4CFDD; max-width: 640px; margin-bottom: 40px; line-height: 1.7; }
+.hero-grid { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+.hero-meta { display: flex; flex-direction: column; gap: 6px; }
+.hero-practice { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.hero-insight { font-size: 15px; color: #C4CFDD; max-width: 560px; line-height: 1.65; margin-bottom: 20px; }
+.hero-insight strong { color: #fff; }
+.hero-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+.hero-tag { background: var(--navy-lt); color: #C4CFDD; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); }
+.hero-facts { display: flex; flex-direction: column; gap: 10px; }
+.hero-fact { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #C4CFDD; }
+.hero-fact strong { color: #fff; }
+.hero-fact-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-red { background: #E05252; }
+.dot-green { background: #3DAD6C; }
+.score-box { text-align: center; background: var(--navy-lt); border: 1px solid rgba(94,235,194,0.25); border-radius: 16px; padding: 32px 40px; flex-shrink: 0; }
+.score-number { font-size: clamp(56px,8vw,80px); font-weight: 800; color: #E05252; line-height: 1; }
+.score-denom { font-size: 22px; font-weight: 400; color: #9AABBD; }
+.score-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #9AABBD; margin-top: 8px; margin-bottom: 16px; }
+.score-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.score-bar-fill { height: 100%; background: #E05252; border-radius: 3px; width: 22%; }
+.hero-date { margin-top: 32px; font-size: 12px; color: #728698; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
+.courtesy-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(94,235,194,0.12); border: 1px solid var(--accent); color: var(--accent); font-size: 13px; font-weight: 600; padding: 8px 20px; border-radius: 6px; margin-top: 16px; }
+
+/* ── SECTION BASE ───────────────────────────── */
+section { padding: 64px 48px; }
+
+/* Light sections — dark text */
+.section-light { background: #fff; }
+.section-alt   { background: #F6F8FB; }
+
+/* Dark sections — light text */
+.section-dark  { background: var(--navy); }
+
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px; color: var(--accent-dim); }
+.section-label-dark  { color: var(--accent); }
+.section-label-light { color: var(--accent-dim); }
+
+.section-title { font-size: clamp(22px,3vw,32px); font-weight: 700; margin-bottom: 8px; line-height: 1.3; color: #0B1929; }
+.section-title em { font-family: 'Newsreader', serif; font-style: italic; font-weight: 300; color: #4B5563; }
+.section-title-dark  { color: #fff; }
+.section-title-dark em  { font-family: 'Newsreader', serif; font-style: italic; font-weight: 300; color: #C4CFDD; }
+.section-title-light { color: #0B1929; }
+.section-title-light em { font-family: 'Newsreader', serif; font-style: italic; font-weight: 300; color: #4B5563; }
+
+.section-intro { font-size: 16px; margin-bottom: 40px; max-width: 680px; line-height: 1.7; color: #374151; }
+.section-intro-dark  { color: #C4CFDD; }
+.section-intro-light { color: #374151; }
+
+/* Dark section overrides — base class names used in HTML */
+.ai-section .section-label,
+.roadmap .section-label,
+.cta-section .section-label  { color: var(--accent); }
+
+.ai-section .section-title,
+.roadmap .section-title,
+.cta-section .section-title  { color: #fff; }
+
+.ai-section .section-title em,
+.roadmap .section-title em,
+.cta-section .section-title em { font-family: 'Newsreader', serif; font-style: italic; font-weight: 300; color: #C4CFDD; }
+
+.ai-section .section-intro,
+.roadmap .section-intro,
+.cta-section .section-intro  { color: #C4CFDD; }
+
+/* Roadmap — backward-compat alias */
+.roadmap { background: var(--navy); }
+
+/* AI CTA box — backward-compat alias (old class: doctor-rank-cta) */
+.doctor-rank-cta { background: var(--navy-mid); border: 2px solid var(--accent); border-radius: 16px; padding: 40px 48px; text-align: center; max-width: 640px; margin: 0 auto; }
+.dr-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.dr-title   { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 14px; line-height: 1.3; }
+.dr-sub     { font-size: 15px; color: #C4CFDD; margin-bottom: 28px; line-height: 1.7; }
+
+/* ── VERDICT (light bg) ─────────────────────── */
+.verdict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.chart-box { background: var(--navy); border-radius: 16px; padding: 32px; border: 1px solid rgba(255,255,255,0.1); }
+.chart-title { font-size: 13px; font-weight: 600; color: #C4CFDD; margin-bottom: 24px; }
+.gaps { display: flex; flex-direction: column; gap: 16px; }
+.gap-card { background: var(--navy); border-radius: 12px; padding: 20px 24px; border-left: 4px solid #E05252; border-top: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.gap-card.amber { border-left-color: #E8A820; }
+.gap-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.gap-body  { font-size: 13px; color: #C4CFDD; line-height: 1.65; }
+.opportunity-box { margin-top: 24px; background: #EBF9F5; border: 1px solid #3CC49E; border-radius: 12px; padding: 20px 24px; }
+.opportunity-box p { font-size: 14px; color: #1F2937; line-height: 1.65; }
+.opportunity-box strong { color: #1A6B50; font-weight: 700; }
+
+/* ── AI SECTION (dark bg) ───────────────────── */
+.ai-section { background: var(--navy); }
+.ai-scenario { background: var(--navy-mid); border-radius: 16px; padding: 32px; margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.1); font-size: 15px; color: #C4CFDD; line-height: 1.8; max-width: 720px; }
+.ai-scenario strong { color: #fff; }
+.ai-scenario .loss { color: #E05252; font-weight: 600; }
+.ai-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.ai-step { background: var(--navy-mid); border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent); }
+.ai-step-icon { font-size: 28px; margin-bottom: 12px; }
+.ai-step-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+.ai-step-body { font-size: 13px; color: #C4CFDD; line-height: 1.65; }
+.ai-pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+.pillar { background: var(--navy-mid); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); }
+.pillar-name { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+.pillar-item { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #C4CFDD; margin-bottom: 8px; }
+.pi-icon { flex-shrink: 0; }
+.cta-ai-box { background: var(--navy-mid); border: 2px solid var(--accent); border-radius: 16px; padding: 40px 48px; text-align: center; max-width: 640px; margin: 0 auto; }
+.cta-ai-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.cta-ai-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 14px; line-height: 1.3; }
+.cta-ai-body { font-size: 15px; color: #C4CFDD; margin-bottom: 28px; line-height: 1.7; }
+.btn-cta { display: inline-block; background: var(--accent); color: #0B1929; font-size: 14px; font-weight: 800; padding: 14px 32px; border-radius: 8px; text-decoration: none; letter-spacing: 0.04em; }
+.btn-cta:hover { opacity: 0.88; }
+
+/* ── MARKET (light bg) ──────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.stat-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 28px; border-top: 3px solid var(--accent); }
+.stat-number { font-size: 42px; font-weight: 800; color: #0B1929; line-height: 1; margin-bottom: 8px; }
+.stat-desc { font-size: 14px; color: #374151; line-height: 1.6; margin-bottom: 8px; }
+.stat-source { font-size: 11px; color: #6B7280; }
+.stat-source a { color: #2A8A6E; text-decoration: none; }
+
+/* ── BENCHMARK (dark bg) ────────────────────── */
+.bench-chart-wrap { margin-bottom: 32px; background: var(--navy-mid); border-radius: 16px; padding: 32px; border: 1px solid rgba(255,255,255,0.1); }
+.bench-table { width: 100%; border-collapse: collapse; margin-top: 32px; background: var(--navy-mid); border-radius: 12px; overflow: hidden; }
+.bench-table th { background: var(--navy-lt); color: #C4CFDD; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 20px; text-align: left; }
+.bench-table td { padding: 14px 20px; font-size: 14px; color: #C4CFDD; border-top: 1px solid rgba(255,255,255,0.07); }
+.bench-table tr.highlight td { background: rgba(94,235,194,0.1); color: #fff; font-weight: 600; }
+.bench-table a { color: var(--accent); text-decoration: none; }
+.bench-table a:hover { text-decoration: underline; }
+
+/* ── AUDIT (light bg) ───────────────────────── */
+.audit-grid { display: flex; flex-direction: column; gap: 28px; margin-top: 40px; }
+.audit-card { background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #D1D5DB; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.audit-card-header { padding: 20px 28px; background: var(--navy); border-bottom: 3px solid var(--accent); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.audit-dim-label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.audit-card-title { font-size: 16px; font-weight: 700; color: #fff; line-height: 1.4; flex: 1; }
+.score-badge { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; font-size: 18px; font-weight: 800; flex-shrink: 0; }
+.badge-red   { background: rgba(192,57,43,0.15);   color: #C0392B; border: 2px solid #C0392B; }
+.badge-amber { background: rgba(150,106,0,0.15);   color: #966A00; border: 2px solid #966A00; }
+.badge-teal  { background: rgba(42,138,110,0.15);  color: #2A8A6E; border: 2px solid #2A8A6E; }
+.badge-green { background: rgba(30,122,69,0.15);   color: #1E7A45; border: 2px solid #1E7A45; }
+.audit-card-inner { display: grid; grid-template-columns: 1fr 1fr; }
+.audit-finding-col { padding: 28px; border-right: 1px solid #E5E7EB; background: #fff; }
+.audit-recs-col    { padding: 28px; background: #F9FAFB; }
+.audit-col-label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6B7280; margin-bottom: 14px; }
+.audit-finding { font-size: 14px; color: #1F2937; line-height: 1.75; }
+.audit-finding strong { color: #0B1929; font-weight: 700; }
+.rec-list { display: flex; flex-direction: column; gap: 10px; }
+.rec { background: #fff; border-radius: 8px; padding: 14px 16px; border-left: 3px solid #C0392B; display: flex; gap: 12px; align-items: flex-start; border: 1px solid #E5E7EB; border-left: 3px solid #C0392B; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.rec.amber { border-left-color: #966A00; }
+.rec.green { border-left-color: #1E7A45; }
+.rec-label { font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #C0392B; flex-shrink: 0; margin-top: 2px; min-width: 52px; }
+.rec.amber .rec-label { color: #966A00; }
+.rec.green .rec-label { color: #1E7A45; }
+.rec-text { font-size: 13px; color: #1F2937; line-height: 1.6; }
+.rec-text strong { color: #0B1929; font-weight: 700; }
+
+/* ── ROADMAP (dark bg) ──────────────────────── */
+.roadmap-section { background: var(--navy); }
+.phases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.phase-card { background: var(--navy-mid); border-radius: 16px; padding: 28px; border: 1px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent); }
+.phase-label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.phase-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 16px; }
+.phase-items { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.phase-items li { font-size: 13px; color: #C4CFDD; line-height: 1.65; padding-left: 18px; position: relative; }
+.phase-items li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+/* ── KPIs (light bg) ────────────────────────── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.kpi-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px; border-top: 3px solid #0B1929; }
+.kpi-name   { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #6B7280; margin-bottom: 8px; }
+.kpi-metric { font-size: 16px; font-weight: 700; color: #0B1929; margin-bottom: 6px; }
+.kpi-desc   { font-size: 12px; color: #374151; line-height: 1.55; }
+
+/* ── CTA SECTION (dark bg) ──────────────────── */
+.cta-section { background: var(--navy); text-align: center; }
+.cta-cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; max-width: 840px; margin: 0 auto 48px; text-align: left; }
+.cta-card { background: var(--navy-mid); border-radius: 16px; padding: 32px 28px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 16px; }
+.cta-card.featured { border-color: var(--accent); }
+.cta-card-icon  { font-size: 32px; }
+.cta-card-title { font-size: 17px; font-weight: 700; color: #fff; line-height: 1.3; }
+.cta-card-desc  { font-size: 13px; color: #C4CFDD; line-height: 1.7; flex: 1; }
+.cta-card a { display: block; background: var(--navy-lt); color: var(--accent); font-size: 13px; font-weight: 700; padding: 13px 16px; border-radius: 8px; text-decoration: none; border: 1px solid rgba(94,235,194,0.35); letter-spacing: 0.04em; text-align: center; }
+.cta-card.featured a { background: var(--accent); color: #0B1929; border-color: var(--accent); font-weight: 800; }
+.cta-final { margin-top: 8px; }
+.cta-final a { display: inline-block; background: var(--accent); color: #0B1929; font-size: 16px; font-weight: 800; padding: 18px 48px; border-radius: 10px; text-decoration: none; letter-spacing: 0.04em; }
+
+/* ── FOOTER ──────────────────────────────────── */
+footer { background: var(--navy); border-top: 2px solid var(--accent); padding: 24px 48px; display: flex; justify-content: space-between; align-items: center; }
+footer .logo { font-weight: 700; color: #fff; font-size: 16px; }
+footer .logo span { color: var(--accent); }
+footer small { font-size: 12px; color: #728698; }
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media print { .nav { position: relative; } .btn-print { display: none; } section { padding: 40px 32px; } .hero { padding: 48px 32px; } }
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  section, .hero { padding: 48px 24px; }
+  .hero-grid, .verdict-grid, .audit-card-inner { grid-template-columns: 1fr; }
+  .ai-steps, .ai-pillars, .phases, .kpi-grid, .cta-cards, .stats-grid { grid-template-columns: 1fr; }
+  .audit-finding-col { border-right: none; border-bottom: 1px solid #E5E7EB; }
+  .cta-ai-box { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Flow <span>Results</span></div>
+  <div class="nav-links">
+    <a href="#verdict">Diagnóstico</a>
+    <a href="#ai">Visibilidad IA</a>
+    <a href="#benchmark">Competencia</a>
+    <a href="#audit">Auditoría</a>
+    <a href="#roadmap">Plan 12 meses</a>
+    <a href="#cta">Siguiente paso</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-print" onclick="window.print()">Imprimir</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Diagnóstico de Visibilidad Digital · Mayo 2026</div>
+  <h1 class="hero-title">
+    <strong>Diagnóstico</strong> de<br>
+    Visibilidad <em>Digital</em>
+  </h1>
+  <p class="hero-tagline">Las mejores especialistas merecen ser encontradas en internet. Este reporte revela un diagnóstico completo de cómo posicionarse como la referencia #1 en uroginecología en Ciudad de México.</p>
+
+  <div class="hero-grid">
+    <div class="hero-meta">
+      <div class="hero-practice">UROGINMEX</div>
+      <p class="hero-insight">
+        UROGINMEX tiene <strong>una de las especialidades médicas más rentables de la medicina privada en México</strong> — uroginecología y menopausia — con presencia en Hospital Ángeles y credenciales de alto nivel. Ahora necesita <strong>una presencia digital proporcional a ese expertise clínico</strong> para capturar las pacientes que ya están buscando este servicio en Google e IA.
+      </p>
+      <div class="hero-tags">
+        <span class="hero-tag">Uroginecología</span>
+        <span class="hero-tag">Menopausia</span>
+        <span class="hero-tag">Ciudad de México</span>
+        <span class="hero-tag">Hospital Ángeles Acoxpa</span>
+      </div>
+      <div class="hero-facts">
+        <div class="hero-fact">
+          <div class="hero-fact-dot dot-red"></div>
+          <span><strong>1 reseña</strong> en Doctoralia (vs. 437 de la competencia líder)</span>
+        </div>
+        <div class="hero-fact">
+          <div class="hero-fact-dot dot-red"></div>
+          <span><strong>Sitio web vacío</strong> — sin contenido, sin servicios, sin reservas online</span>
+        </div>
+        <div class="hero-fact">
+          <div class="hero-fact-dot dot-red"></div>
+          <span><strong>Invisible en IA</strong> — ChatGPT y Perplexity no la recomiendan</span>
+        </div>
+        <div class="hero-fact">
+          <div class="hero-fact-dot dot-green"></div>
+          <span><strong>Hospital Ángeles</strong> — credencial de alta percepción de calidad</span>
+        </div>
+      </div>
+      <div class="courtesy-badge">
+        ✦ Diagnóstico valorado en $1,000 USD — cortesía por su sesión con Flow Results
+      </div>
+    </div>
+
+    <div class="score-box">
+      <div class="score-number">1.1<span class="score-denom"> / 5.0</span></div>
+      <div class="score-label">Índice de visibilidad digital</div>
+      <div class="score-bar"><div class="score-bar-fill"></div></div>
+      <p style="font-size:12px; color:#9AABBD; margin-top:12px; line-height:1.5;">
+        Promedio competencia<br>
+        <strong style="color:#E8A820; font-size:20px;">3.1</strong> / 5.0
+      </p>
+    </div>
+  </div>
+
+  <div class="hero-date">Preparado por Flow Results · flowresults.com · Mayo 2026 · Fuentes: Doctoralia MX, Google Business Profile, investigación de mercado</div>
+</div>
+
+<!-- VERDICT -->
+<section id="verdict">
+  <div class="section-label">Diagnóstico ejecutivo</div>
+  <h2 class="section-title">La brecha entre su expertise clínico <em>y su presencia digital</em> es crítica.</h2>
+  <p class="section-intro">UROGINMEX opera en un nicho de alta demanda y bajo nivel de oferta digital. Esto es una ventaja — si actúa ahora. El radar muestra la distancia entre UROGINMEX y el promedio de los 5 especialistas más visibles en uroginecología en CDMX.</p>
+
+  <div class="verdict-grid">
+    <div class="chart-box">
+      <p class="chart-title">UROGINMEX vs. Promedio competencia — 6 dimensiones</p>
+      <canvas id="radarChart" height="300"></canvas>
+    </div>
+
+    <div>
+      <div class="gaps">
+        <div class="gap-card">
+          <div class="gap-title">🔴 Reputación digital: 1 reseña vs. 270 del promedio competitivo</div>
+          <p class="gap-body">La Dra. Carvajal González —su competidora más fuerte en Doctoralia— tiene 437 opiniones. UROGINMEX tiene 1. Para una paciente nueva que busca un uroginecólogo en CDMX, la decisión se toma en Doctoralia antes de llegar al consultorio.</p>
+        </div>
+        <div class="gap-card">
+          <div class="gap-title">🔴 Sitio web sin contenido operativo</div>
+          <p class="gap-body">uroginmex.com muestra únicamente el post de bienvenida predeterminado de WordPress ("Hello World"). Sin páginas de servicios, sin información de la doctora, sin botón de cita, sin precios. El primer punto de contacto digital no existe.</p>
+        </div>
+        <div class="gap-card amber">
+          <div class="gap-title">🟡 Visibilidad en IA: actualmente nula</div>
+          <p class="gap-body">ChatGPT, Perplexity y Google AI Overviews no recomiendan a UROGINMEX cuando una paciente pregunta por uroginecología o menopausia en CDMX. Sin contenido estructurado, schema markup ni citas de autoridad, es imposible aparecer.</p>
+        </div>
+      </div>
+      <div class="opportunity-box">
+        <p>📊 <strong>Oportunidad ilustrativa:</strong> En CDMX se realizan un estimado de 2,000–3,000 búsquedas mensuales de términos como "uroginecóloga CDMX", "médico menopausia Ciudad de México" y "incontinencia urinaria tratamiento CDMX". Con una presencia digital competitiva, UROGINMEX podría capturar un <strong>5–10% de esas búsquedas como consultas nuevas</strong> — 10 a 30 pacientes adicionales por mes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section id="ai" class="ai-section">
+  <div class="section-label">Posicionamiento en Inteligencia Artificial</div>
+  <h2 class="section-title">¿Le gustaría que ChatGPT la recomiende de primero?</h2>
+  <p class="section-intro">En 2026, más del 35% de los pacientes en México usan herramientas de IA para buscar especialistas antes de agendar cita. UROGINMEX actualmente no aparece en ninguna de estas herramientas.</p>
+
+  <div class="ai-scenario">
+    <p>Son las 11pm. Una mujer de 48 años abre ChatGPT y escribe: <strong>"¿Cuál es la mejor uroginecóloga en Ciudad de México para tratar incontinencia en la menopausia?"</strong></p>
+    <br>
+    <p>ChatGPT responde con los perfiles que tienen contenido estructurado, reseñas sólidas y presencia en directorios de autoridad. <span class="loss">UROGINMEX no aparece.</span> Esa paciente, que potencialmente necesita una cirugía de $25,000–$40,000 pesos, agenda con otra especialista.</p>
+    <br>
+    <p><strong>No hubo rechazo. Solo invisibilidad.</strong></p>
+  </div>
+
+  <div class="ai-steps">
+    <div class="ai-step">
+      <div class="ai-step-icon">🔍</div>
+      <div class="ai-step-title">La paciente pregunta</div>
+      <p class="ai-step-body">Usa ChatGPT, Perplexity o Google AI Overviews para encontrar un especialista en su condición y ciudad.</p>
+    </div>
+    <div class="ai-step">
+      <div class="ai-step-icon">🧠</div>
+      <div class="ai-step-title">La IA busca señales</div>
+      <p class="ai-step-body">Escanea contenido estructurado, reseñas verificadas, citas de autoridad y presencia en directorios médicos reconocidos.</p>
+    </div>
+    <div class="ai-step">
+      <div class="ai-step-icon">✅</div>
+      <div class="ai-step-title">Recomienda al que más señales tiene</div>
+      <p class="ai-step-body">La especialista con más contenido, reviews y autoridad digital gana el paciente. Sin señales, no existe para la IA.</p>
+    </div>
+  </div>
+
+  <div class="ai-pillars">
+    <div class="pillar">
+      <div class="pillar-name">Contenido</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-icon">❌</span>Sin páginas de servicios</div>
+        <div class="pillar-item"><span class="pi-icon">❌</span>Sin FAQs estructuradas</div>
+        <div class="pillar-item"><span class="pi-icon">❌</span>Sin artículos médicos</div>
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-name">Schema Markup</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-icon">❌</span>Sin datos estructurados</div>
+        <div class="pillar-item"><span class="pi-icon">❌</span>Sin MedicalClinic schema</div>
+        <div class="pillar-item"><span class="pi-icon">❌</span>Sin Physician schema</div>
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-name">Reseñas</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-icon">❌</span>1 reseña Doctoralia</div>
+        <div class="pillar-item"><span class="pi-icon">❌</span>Google sin confirmar</div>
+        <div class="pillar-item"><span class="pi-icon">⚠️</span>Sin estrategia activa</div>
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-name">Citaciones</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-icon">✅</span>Hospital Ángeles</div>
+        <div class="pillar-item"><span class="pi-icon">✅</span>SMUG (colegio)</div>
+        <div class="pillar-item"><span class="pi-icon">❌</span>Sin backlinks de autoridad</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="doctor-rank-cta">
+    <div class="dr-eyebrow">Flow Results · Oferta Mayo 2026</div>
+    <h3 class="dr-title">Posicionemos a UROGINMEX en la IA antes de que lo haga su competencia</h3>
+    <p class="dr-sub">Agendemos una sesión de estrategia de 30 minutos. Revisamos este diagnóstico juntos, definimos el plan de acción y le presentamos cómo posicionar a UROGINMEX en ChatGPT, Perplexity y Google AI Overviews — sin costo adicional para usted este mes.</p>
+    <a href="https://calendly.com/recheverria-flow/sesion-de-estrategia-con-flow-results-clone" target="_blank" class="btn-cta">Agendar sesión de estrategia →</a>
+  </div>
+</section>
+
+<!-- MARKET CONTEXT -->
+<section id="market">
+  <div class="section-label">Contexto del mercado</div>
+  <h2 class="section-title">Cómo elige una paciente a su uroginecóloga <em>en 2026</em></h2>
+  <p class="section-intro">El proceso de decisión de una paciente privada en México ha cambiado radicalmente. Estas son las cifras que importan para el mercado de UROGINMEX.</p>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">88%</div>
+      <p class="stat-desc">de los pacientes mexicanos leen reseñas en línea antes de elegir un especialista médico privado.</p>
+      <p class="stat-source">Fuente: <a href="https://www.brightlocal.com/research/local-consumer-review-survey/" target="_blank">BrightLocal Local Consumer Review Survey 2024</a></p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">73%</div>
+      <p class="stat-desc">de los pacientes en LATAM contactan al especialista directamente desde el perfil de Google o Doctoralia, sin visitar el sitio web.</p>
+      <p class="stat-source">Fuente: <a href="https://pro.doctoralia.com.mx/recursos/" target="_blank">Doctoralia LATAM Patient Behavior Report 2024</a></p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">35%</div>
+      <p class="stat-desc">de los usuarios en México ya utilizan herramientas de IA (ChatGPT, Gemini, Perplexity) para buscar especialistas médicos, tendencia creciente en 2026.</p>
+      <p class="stat-source">Fuente: <a href="https://www.statista.com/statistics/1448823/chatgpt-monthly-users-mexico/" target="_blank">Statista, AI Search Adoption LATAM 2025</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPETITIVE BENCHMARK -->
+<section id="benchmark" style="background: var(--navy);">
+  <div class="section-label" style="color:var(--accent);">Benchmarking competitivo</div>
+  <h2 class="section-title" style="color:#fff;">UROGINMEX vs. los líderes del mercado <em>en CDMX</em></h2>
+  <p class="section-intro" style="color:#9AABBD;">Comparativa de reseñas en los dos directorios más importantes para México: Google Business Profile y Doctoralia. UROGINMEX aparece destacado.</p>
+
+  <div class="bench-chart-wrap">
+    <p class="chart-title">Volumen de reseñas en Doctoralia — Uroginecología CDMX</p>
+    <canvas id="barChart" height="200"></canvas>
+  </div>
+
+  <table class="bench-table">
+    <thead>
+      <tr>
+        <th>Especialista</th>
+        <th>Reseñas Doctoralia</th>
+        <th>Consulta desde</th>
+        <th>Reserva online</th>
+        <th>Hospital</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://www.doctoralia.com.mx/azenet-carvajal-gonzalez/ginecologo/benito-juarez" target="_blank">Dra. Azenet Carvajal González</a></td>
+        <td><strong style="color:#3DAD6C">437 ⭐</strong></td>
+        <td>$1,200</td>
+        <td>✅ Sí</td>
+        <td>San Ángel Inn Acora</td>
+      </tr>
+      <tr>
+        <td><a href="https://www.doctoralia.com.mx/erendira-kunhardt-2/ginecologo-urologo/magdalena-contreras" target="_blank">Eréndira Kunhardt</a></td>
+        <td><strong style="color:#3DAD6C">300 ⭐</strong></td>
+        <td>$2,400</td>
+        <td>✅ Sí</td>
+        <td>Ángeles Pedregal</td>
+      </tr>
+      <tr>
+        <td><a href="https://www.doctoralia.com.mx/edgar-alain-becerra-marquez/ginecologo/naucalpan-de-juarez2" target="_blank">Dr. Edgar Becerra Marquez</a></td>
+        <td><strong style="color:#E8A820">279 ⭐</strong></td>
+        <td>$1,200</td>
+        <td>✅ Sí</td>
+        <td>SaludGia / Ángeles Univ.</td>
+      </tr>
+      <tr>
+        <td><a href="https://www.doctoralia.com.mx/rosa-virginia-merodio-anguiano/ginecologo/miguel-hidalgo" target="_blank">Dra. Rosa Virginia Merodio</a></td>
+        <td><strong style="color:#E8A820">184 ⭐</strong></td>
+        <td>$1,500</td>
+        <td>✅ Sí</td>
+        <td>Ángeles Pedregal</td>
+      </tr>
+      <tr>
+        <td><a href="https://www.doctoralia.com.mx/virginia-cortes-uribe/ginecologo/ciudad-de-mexico" target="_blank">Dra. Virginia Cortés Uribe</a></td>
+        <td><strong style="color:#E8A820">152 ⭐</strong></td>
+        <td>$1,600</td>
+        <td>✅ Sí</td>
+        <td>Ángeles Metropolitano</td>
+      </tr>
+      <tr class="highlight">
+        <td><strong>UROGINMEX — Dra. Guadalupe Guerrero</strong></td>
+        <td><strong style="color:var(--red)">1 ⭐</strong></td>
+        <td>$1,500</td>
+        <td>❌ No</td>
+        <td>Ángeles Acoxpa</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- AUDIT -->
+<section id="audit">
+  <div class="section-label">Auditoría detallada</div>
+  <h2 class="section-title">Las 6 dimensiones de visibilidad: <em>hallazgos y recomendaciones</em></h2>
+  <p class="section-intro">Cada dimensión fue auditada con base en fuentes públicas verificables. Las recomendaciones están clasificadas por impacto y urgencia.</p>
+
+  <div class="audit-grid">
+    <!-- 1. REVIEWS -->
+    <div class="audit-card">
+      <div class="audit-card-header">
+        <div>
+          <div class="audit-dim-label">Dimensión 1 — Reputación Digital</div>
+          <div class="audit-card-title">La brecha de reputación: 1 reseña frente a un mercado con cientos</div>
+        </div>
+        <div class="score-badge badge-red">1</div>
+      </div>
+      <div class="audit-card-inner">
+        <div class="audit-finding-col">
+          <p class="audit-col-label">Situación actual</p>
+          <p class="audit-finding">
+            UROGINMEX tiene <strong>1 opinión en Doctoralia</strong> (diciembre 2023, calificación positiva). La competencia líder acumula 437. Google Business Profile no muestra un perfil verificado activo con reseñas recientes. Una paciente que compare en Doctoralia verá a UROGINMEX como una opción menor, independientemente del nivel clínico de la Dra. Guerrero.
+          </p>
+        </div>
+        <div class="audit-recs-col">
+          <p class="audit-col-label">Recomendaciones</p>
+          <div class="rec-list">
+            <div class="rec">
+              <span class="rec-label">URGENTE</span>
+              <p class="rec-text"><strong>Activar sistema de captación de reseñas.</strong> Flujo post-consulta vía WhatsApp con link directo a Google y Doctoralia. Meta: 5 reseñas nuevas por mes en 90 días.</p>
+            </div>
+            <div class="rec">
+              <span class="rec-label">URGENTE</span>
+              <p class="rec-text"><strong>Reclamar y optimizar Google Business Profile.</strong> Verificar perfil, completar horarios, fotos, servicios y categorías. Es el primer resultado que ve una paciente al buscar "uroginecóloga CDMX".</p>
+            </div>
+            <div class="rec amber">
+              <span class="rec-label">30 DÍAS</span>
+              <p class="rec-text"><strong>Activar perfil premium en Doctoralia.</strong> Habilitar reserva online — actualmente desactivada — para capturar a quienes llegan al perfil sin poder agendar.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. WEBSITE -->
+    <div class="audit-card">
+      <div class="audit-card-header">
+        <div>
+          <div class="audit-dim-label">Dimensión 2 — Sitio Web y Conversión</div>
+          <div class="audit-card-title">El sitio web es un WordPress vacío — punto de contacto inexistente</div>
+        </div>
+        <div class="score-badge badge-red">0.5</div>
+      </div>
+      <div class="audit-card-inner">
+        <div class="audit-finding-col">
+          <p class="audit-col-label">Situación actual</p>
+          <p class="audit-finding">
+            uroginmex.com muestra únicamente el post predeterminado de WordPress ("Hello World!", abril 2026). <strong>No existe ningún contenido clínico, página de servicios, información de la doctora, ni botón de cita.</strong> Un lead que aterrice en el sitio lo abandona en menos de 10 segundos. Actualmente daña la percepción de profesionalismo.
+          </p>
+        </div>
+        <div class="audit-recs-col">
+          <p class="audit-col-label">Recomendaciones</p>
+          <div class="rec-list">
+            <div class="rec">
+              <span class="rec-label">URGENTE</span>
+              <p class="rec-text"><strong>Construir sitio web médico profesional.</strong> Home con propuesta de valor, página de la Dra. Guerrero con credenciales, páginas por servicio (uroginecología, menopausia, piso pélvico) y botón de WhatsApp/cita visible en todas las páginas.</p>
+            </div>
+            <div class="rec">
+              <span class="rec-label">URGENTE</span>
+              <p class="rec-text"><strong>Instalar Google Analytics 4 y píxel de seguimiento.</strong> Sin medición no existe optimización. Identificar origen de visitas y acciones de los usuarios.</p>
+            </div>
+            <div class="rec amber">
+              <span class="rec-label">30 DÍAS</span>
+              <p class="rec-text"><strong>Agregar contenido educativo y casos clínicos.</strong> Para procedimientos de piso pélvico y menopausia, el contenido de valor genera confianza y reduce la fricción de la primera cita.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SEO -->
+    <div class="audit-card">
+      <div class="audit-card-header">
+        <div>
+          <div class="audit-dim-label">Dimensión 3 — SEO y Contenido</div>
+          <div class="audit-card-title">SEO inexistente — cero ranking orgánico para términos de alta conversión</div>
+        </div>
+        <div class="score-badge badge-red">0.5</div>
+      </div>
+      <div class="audit-card-inner">
+        <div class="audit-finding-col">
+          <p class="audit-col-label">Situación actual</p>
+          <p class="audit-finding">
+            Sin contenido en el sitio, UROGINMEX no rankea para ningún término relevante: "uroginecóloga CDMX", "tratamiento incontinencia urinaria México" o "médico menopausia Ciudad de México". <strong>El tráfico orgánico es cero.</strong> La afiliación a Hospital Ángeles otorga credencial clínica, pero no visibilidad digital.
+          </p>
+        </div>
+        <div class="audit-recs-col">
+          <p class="audit-col-label">Recomendaciones</p>
+          <div class="rec-list">
+            <div class="rec">
+              <span class="rec-label">URGENTE</span>
+              <p class="rec-text"><strong>Crear páginas de servicio SEO-optimizadas.</strong> Una página por condición: incontinencia urinaria, menopausia, prolapso pélvico, urodinamia — con H1 geolocalizado y contenido de 800+ palabras.</p>
+            </div>
+            <div class="rec amber">
+              <span class="rec-label">60 DÍAS</span>
+              <p class="rec-text"><strong>Publicar FAQ médica estructurada.</strong> Artículos de 600–1,000 palabras respondiendo preguntas frecuentes sobre menopausia e incontinencia. Alimenta SEO y visibilidad en IA.</p>
+            </div>
+            <div class="rec green">
+              <span class="rec-label">90 DÍAS</span>
+              <p class="rec-text"><strong>Implementar schema markup MedicalClinic y Physician.</strong> Datos estructurados para que Google y los motores de IA identifiquen a UROGINMEX como fuente de autoridad médica.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. LISTINGS -->
+    <div class="audit-card">
+      <div class="audit-card-header">
+        <div>
+          <div class="audit-dim-label">Dimensión 4 — Directorios y Citas</div>
+          <div class="audit-card-title">Presencia en directorios: mínima y sin optimizar</div>
+        </div>
+        <div class="score-badge badge-amber">2</div>
+      </div>
+      <div class="audit-card-inner">
+        <div class="audit-finding-col">
+          <p class="audit-col-label">Situación actual</p>
+          <p class="audit-finding">
+            UROGINMEX está listada en <strong>Doctoralia</strong> (1 reseña, sin reserva online) y en el <strong>directorio de Hospital Ángeles</strong>. Aparece también en el <strong>SMUG</strong> (Colegio Mexicano de Urología Ginecológica), señal de autoridad valiosa. Sin embargo, sin presencia confirmada en TopDoctors.mx y sin NAP verificado como consistente entre plataformas.
+          </p>
+        </div>
+        <div class="audit-recs-col">
+          <p class="audit-col-label">Recomendaciones</p>
+          <div class="rec-list">
+            <div class="rec amber">
+              <span class="rec-label">30 DÍAS</span>
+              <p class="rec-text"><strong>Activar reserva online en Doctoralia.</strong> Mayor impacto inmediato — pacientes que llegan al perfil sin poder agendar en línea se van a la competencia.</p>
+            </div>
+            <div class="rec amber">
+              <span class="rec-label">30 DÍAS</span>
+              <p class="rec-text"><strong>Crear perfil en TopDoctors.mx.</strong> Segunda plataforma médica más importante en México. Genera leads adicionales y refuerza autoridad para motores de IA.</p>
+            </div>
+            <div class="rec green">
+              <span class="rec-label">60 DÍAS</span>
+              <p class="rec-text"><strong>Unificar NAP en todas las plataformas.</strong> Mismo nombre, dirección y teléfono en Google, Doctoralia, TopDoctors y Hospital Ángeles. La consistencia es factor de ranking local.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. SOCIAL -->
+    <div class="audit-card">
+      <div class="audit-card-header">
+        <div>
+          <div class="audit-dim-label">Dimensión 5 — Redes Sociales y Video</div>
+          <div class="audit-card-title">Instagram @uroginmex existe — pero necesita estrategia de contenido consistente</div>
+        </div>
+        <div class="score-badge badge-amber">2</div>
+      </div>
+      <div class="audit-card-inner">
+        <div class="audit-finding-col">
+          <p class="audit-col-label">Situación actual</p>
+          <p class="audit-finding">
+            UROGINMEX cuenta con perfil de Instagram (<strong>@uroginmex</strong>), activo importante que muchos competidores infrautilizan. Sin presencia en YouTube ni TikTok — plataformas donde el contenido sobre menopausia tiene alcance orgánico excepcional. <strong>El nicho de menopausia tiene una audiencia muy activa en redes</strong> con alta disposición a compartir contenido educativo.
+          </p>
+        </div>
+        <div class="audit-recs-col">
+          <p class="audit-col-label">Recomendaciones</p>
+          <div class="rec-list">
+            <div class="rec amber">
+              <span class="rec-label">30 DÍAS</span>
+              <p class="rec-text"><strong>Definir calendario editorial en Instagram.</strong> 3 publicaciones semanales: 1 educativa (menopausia/piso pélvico), 1 de credencial (Hospital Ángeles, SMUG), 1 de humanización. Los Reels tienen 3× más alcance que posts estáticos.</p>
+            </div>
+            <div class="rec green">
+              <span class="rec-label">60 DÍAS</span>
+              <p class="rec-text"><strong>Lanzar canal de YouTube/TikTok sobre menopausia.</strong> Videos de 60–90 segundos respondiendo preguntas frecuentes de pacientes. Este contenido también alimenta la visibilidad en IA y genera backlinks orgánicos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. AI -->
+    <div class="audit-card">
+      <div class="audit-card-header">
+        <div>
+          <div class="audit-dim-label">Dimensión 6 — Visibilidad en IA</div>
+          <div class="audit-card-title">Invisible en ChatGPT, Perplexity y Google AI Overviews</div>
+        </div>
+        <div class="score-badge badge-red">1</div>
+      </div>
+      <div class="audit-card-inner">
+        <div class="audit-finding-col">
+          <p class="audit-col-label">Situación actual</p>
+          <p class="audit-finding">
+            Una búsqueda en ChatGPT o Perplexity sobre "mejor uroginecóloga en CDMX" <strong>no devuelve a UROGINMEX</strong>. La membresía en SMUG y afiliación a Hospital Ángeles son señales positivas de autoridad, pero sin contenido estructurado y sin volumen de reseñas, los motores de IA no pueden indexarla. Este es el gap de mayor potencial de crecimiento en 2026.
+          </p>
+        </div>
+        <div class="audit-recs-col">
+          <p class="audit-col-label">Recomendaciones</p>
+          <div class="rec-list">
+            <div class="rec">
+              <span class="rec-label">URGENTE</span>
+              <p class="rec-text"><strong>Implementar estrategia AEO (Answer Engine Optimization).</strong> Posicionamiento en ChatGPT, Perplexity y Google AI Overviews mediante contenido estructurado, schema markup y construcción de autoridad de citas médicas.</p>
+            </div>
+            <div class="rec amber">
+              <span class="rec-label">60 DÍAS</span>
+              <p class="rec-text"><strong>Publicar FAQ estructurada en el sitio web.</strong> Preguntas y respuestas sobre menopausia, incontinencia y cirugía de piso pélvico en formato que los LLMs indexan directamente como fuente de autoridad médica.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="roadmap">
+  <div class="section-label">Plan de acción</div>
+  <h2 class="section-title">12 meses para ser la uroginecóloga <em>#1 en CDMX</em></h2>
+  <p class="section-intro">Un plan en tres fases, de cero a liderazgo digital en su especialidad.</p>
+
+  <div class="phases">
+    <div class="phase-card">
+      <div class="phase-label">Días 1–30 · Fase 1</div>
+      <div class="phase-title">Fundación</div>
+      <ul class="phase-items">
+        <li>Reclamar y optimizar Google Business Profile con fotos y servicios</li>
+        <li>Construir sitio web médico profesional en uroginmex.com</li>
+        <li>Activar reserva online en Doctoralia</li>
+        <li>Implementar flujo de captación de reseñas post-consulta (WhatsApp)</li>
+        <li>Instalar Google Analytics 4 y Search Console</li>
+        <li>Crear perfil en TopDoctors.mx</li>
+      </ul>
+    </div>
+    <div class="phase-card">
+      <div class="phase-label">Días 31–90 · Fase 2</div>
+      <div class="phase-title">Construir</div>
+      <ul class="phase-items">
+        <li>Publicar 4 páginas de servicios SEO-optimizadas (menopausia, incontinencia, prolapso, urodinamia)</li>
+        <li>Lanzar Google Ads local para "uroginecóloga CDMX" y términos de menopausia</li>
+        <li>Iniciar calendario editorial Instagram (3 posts/semana)</li>
+        <li>Implementar schema markup MedicalClinic y Physician en el sitio</li>
+        <li>Publicar primeras 5 FAQs estructuradas en el blog</li>
+        <li>Iniciar estrategia AEO para visibilidad en ChatGPT y Perplexity</li>
+      </ul>
+    </div>
+    <div class="phase-card">
+      <div class="phase-label">Meses 4–12 · Fase 3</div>
+      <div class="phase-title">Escalar y Defender</div>
+      <ul class="phase-items">
+        <li>Lanzar canal de YouTube/TikTok con contenido de menopausia y piso pélvico</li>
+        <li>Construir biblioteca de 20+ artículos médicos de autoridad</li>
+        <li>Campañas de Meta Ads para capturar mujeres 40–60 años en CDMX</li>
+        <li>Sistema de referidos: alianzas con ginecólogos y médicos de primer nivel</li>
+        <li>Monitoreo mensual de posición en ChatGPT y Perplexity</li>
+        <li>Objetivo: 50+ reseñas Google, Top 3 en Doctoralia por especialidad</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- KPIs -->
+<section id="kpis">
+  <div class="section-label">Métricas de éxito</div>
+  <h2 class="section-title">Los 4 números que importan <em>cada mes</em></h2>
+  <p class="section-intro">No se puede mejorar lo que no se mide. Estas son las métricas que Flow Results monitorea en cada cuenta médica.</p>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-name">Nuevas consultas / mes</div>
+      <div class="kpi-metric">Por canal de origen</div>
+      <p class="kpi-desc">Cuántas consultas nuevas vienen de Google orgánico, Doctoralia, Google Ads y redes sociales. Meta a 90 días: +8 consultas/mes por canal digital.</p>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Reseñas nuevas / mes</div>
+      <div class="kpi-metric">Google + Doctoralia</div>
+      <p class="kpi-desc">Velocidad de acumulación de reseñas. Meta: 5 reseñas nuevas por mes. En 6 meses: 30+ reseñas en Google, 20+ en Doctoralia.</p>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Posición en IA</div>
+      <div class="kpi-metric">ChatGPT · Perplexity</div>
+      <p class="kpi-desc">¿Aparece UROGINMEX cuando se pregunta por uroginecóloga en CDMX? Medición mensual de menciones en herramientas de IA. Meta: mención en Top 3 a los 90 días.</p>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-name">Costo por paciente nuevo</div>
+      <div class="kpi-metric">Inversión / nuevos pacientes</div>
+      <p class="kpi-desc">ROI del programa digital. Benchmark del mercado: $300–$800 MXN por consulta nueva captada vía digital. Meta: mantener por debajo de $500 MXN.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" class="cta-section">
+  <div class="section-label">Siguiente paso</div>
+  <h2 class="section-title">Aproveche la oferta de mayo</h2>
+  <p class="section-intro" style="max-width:600px;">Este diagnóstico tiene un valor de $1,000 USD. Es nuestra cortesía por haber agendado su sesión. El siguiente paso es una reunión de estrategia de 30 minutos donde le presentamos el plan de acción personalizado para UROGINMEX.</p>
+
+  <div class="cta-cards" style="grid-template-columns: repeat(2, 1fr); max-width: 800px; margin: 0 auto 48px;">
+    <div class="cta-card featured" style="text-align:left;">
+      <div class="cta-card-icon">📋</div>
+      <div class="cta-card-title">Sesión de estrategia</div>
+      <p class="cta-card-desc">30 minutos con Roberto Echeverría. Revisamos este diagnóstico juntos, definimos el plan de acción y le presentamos la propuesta de trabajo para UROGINMEX — con la oferta especial de mayo.</p>
+      <a href="https://calendly.com/recheverria-flow/sesion-de-estrategia-con-flow-results-clone" target="_blank">Agendar ahora →</a>
+    </div>
+    <div class="cta-card" style="text-align:left;">
+      <div class="cta-card-icon">🚀</div>
+      <div class="cta-card-title">Programa de Aceleración Flow Results AI</div>
+      <p class="cta-card-desc">Web, SEO, reseñas, redes sociales y visibilidad en IA. Un equipo completo de marketing médico ejecutando su estrategia mes a mes — con resultados garantizados en 90 días.</p>
+      <a href="https://calendly.com/recheverria-flow/sesion-de-estrategia-con-flow-results-clone" target="_blank">Conocer el programa →</a>
+    </div>
+  </div>
+
+  <div class="cta-final">
+    <a href="https://calendly.com/recheverria-flow/sesion-de-estrategia-con-flow-results-clone" target="_blank">
+      Agendar sesión de estrategia con Flow Results →
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">Flow <span>Results</span></div>
+  <small>Diagnóstico preparado para UROGINMEX · Mayo 2026 · flowresults.com · +506 7120 7442</small>
+</footer>
+
+<script>
+// RADAR CHART
+const radar = new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Reputación\nDigital', 'Sitio Web\ny Conversión', 'SEO\ny Contenido', 'Directorios\ny Citas', 'Redes\nSociales', 'Visibilidad\nen IA'],
+    datasets: [
+      {
+        label: 'UROGINMEX',
+        data: [1, 0.5, 0.5, 2, 2, 1],
+        borderColor: '#D9534F',
+        backgroundColor: 'rgba(217,83,79,0.15)',
+        borderWidth: 2,
+        pointBackgroundColor: '#D9534F',
+        pointRadius: 4,
+      },
+      {
+        label: 'Promedio competencia',
+        data: [4, 3, 2.5, 3, 2.5, 2],
+        borderColor: '#5EEBC2',
+        backgroundColor: 'rgba(94,235,194,0.1)',
+        borderWidth: 2,
+        pointBackgroundColor: '#5EEBC2',
+        pointRadius: 4,
+        borderDash: [5, 5],
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      r: {
+        min: 0, max: 5,
+        ticks: { color: '#9AABBD', font: { size: 10 }, stepSize: 1, backdropColor: 'transparent' },
+        grid: { color: 'rgba(255,255,255,0.08)' },
+        angleLines: { color: 'rgba(255,255,255,0.08)' },
+        pointLabels: { color: '#C4CFDD', font: { size: 11 } },
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#C4CFDD', font: { size: 12 } } }
+    }
+  }
+});
+
+// BAR CHART
+const bar = new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Dra. Carvajal González', 'Eréndira Kunhardt', 'Dr. Becerra Marquez', 'Dra. Merodio Anguiano', 'Dra. Cortés Uribe', 'UROGINMEX'],
+    datasets: [{
+      label: 'Opiniones en Doctoralia',
+      data: [437, 300, 279, 184, 152, 1],
+      backgroundColor: ['#9AABBD','#9AABBD','#9AABBD','#9AABBD','#9AABBD','#D9534F'],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.raw} opiniones`
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { color: '#9AABBD' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+      y: { ticks: { color: '#C4CFDD', font: { size: 12 } }, grid: { display: false } }
+    }
+  }
+});
+
+// SMOOTH SCROLL
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
